@@ -1,35 +1,26 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { dispatch, TState } from './store'
+import SearchAppBar from './components/AppBar/AppBar'
+import { UserTable } from './components/Table/Table'
+import { LoadingIndicator } from './components/Loading/Loading'
+import { ErrorMessage } from './components/Error/Error'
+import { getUsersRem } from './store/users.slice'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { loading, error } = useSelector((state: TState) => state.users);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+  useEffect(() => {
+    dispatch(getUsersRem({ skip: 0, limit: 10 }));
+    setIsInitialLoad(false)
+  }, [isInitialLoad]);
+  return <>
+    <SearchAppBar />
+    {loading && <LoadingIndicator />}
+    {error && <ErrorMessage message={error} />}
+    {!loading && !error && <UserTable />}
+  </>
 }
 
 export default App
